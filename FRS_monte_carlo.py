@@ -256,7 +256,7 @@ def run_monte_carlo3():
             scenario_score_variable.append(score)
     return [variable_value,days_variable,tickets_variable,scenario_score_variable]
 
-z = run_monte_carlo3()
+
 def print_lists (run_value):
     variable_value = run_value[0]
     days_variable = run_value[1]
@@ -265,5 +265,26 @@ def print_lists (run_value):
     for i in range(len(variable_value)):
         print("%f, %f, %f, %f" %(variable_value[i], days_variable[i], tickets_variable[i], scenario_score_variable[i]))
 
-print_lists(z)
+def list_for_pandas (run_value):
+    variable_value = run_value[0]
+    days_variable = run_value[1]
+    tickets_variable = run_value[2]
+    scenario_score_variable = run_value[3]
+    big_list = []
+    for i in range(len(variable_value)):
+        mini_list = [variable_value[i],days_variable[i], tickets_variable[i], scenario_score_variable[i]]
+        big_list.append(mini_list)
+    table = pd.DataFrame(big_list)
+    return table
+
+def monte_carlo_df (data_set):
+    table = pd.DataFrame(data_set)
+    table.transpose()
+    return table
+
+#z = run_monte_carlo3()
+#monte_carlo_panda_frame = list_for_pandas(z)
+#monte_carlo_panda_frame.transpose()
+#monte_carlo_panda_frame
+
 
