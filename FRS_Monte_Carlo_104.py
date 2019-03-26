@@ -155,7 +155,7 @@ def simulate_revenue(days_left, tickets_left, pricing_function,tickets_over_days
                               demand_level_max=demand_level_max,
                               verbose=verbose)
 
-def pricing_function_monte_carlo(days_left, tickets_left, demand_level,tickets_over_days):
+def pricing_function_monte_carlo(days_left, tickets_left, demand_level,a):
     """Sample pricing function"""
     if days_left == 1:
         price = demand_level - tickets_left
@@ -165,13 +165,13 @@ def pricing_function_monte_carlo(days_left, tickets_left, demand_level,tickets_o
         else:
             price = demand_level - tickets_left/2 
     else:
-        if days_left > 12: #check if 12 is the best number
+        if days_left > a: 
             if demand_level > 186:
                 price = demand_level - 8
             else:
                 price = demand_level + 1
         elif days_left > 3:
-            if tickets_left/days_left > tickets_over_days:
+            if tickets_left/days_left > 2.5:
                 if demand_level > 169:
                     price = demand_level - 17
                 else:
@@ -181,11 +181,10 @@ def pricing_function_monte_carlo(days_left, tickets_left, demand_level,tickets_o
                     price = demand_level - 20
                 else:
                     price = demand_level + 1
-        else: #when does this else statement occur?
+        else: 
             if demand_level > 169:
-                price = demand_level - 13 #doesn't consider the number of tickets left
+                price = demand_level - 13 
             else:
-                #price = demand_level - tickets_left/days_left
                 price = demand_level - 1
     return price
 
@@ -241,8 +240,7 @@ def run_monte_carlo3():
     days_variable = []
     tickets_variable = []
     scenario_score_variable =[]
-    for i in range (0,51):
-        i = i*.1
+    for i in range (100,200):
         x = score_me_monte_carlo(pricing_function_monte_carlo,i,sims_per_scenario=200)
         list_days = x[0]
         list_tickets=x[1]
@@ -254,7 +252,9 @@ def run_monte_carlo3():
             tickets_variable.append(tickets)
         for score in scenario_score:
             scenario_score_variable.append(score)
-    return [variable_value,days_variable,tickets_variable,scenario_score_variable]
+    mega_list = [variable_value,days_variable,tickets_variable,scenario_score_variable]
+    table = list_for_pandas(mega_list)
+    return table
 
 
 def print_lists (run_value):
@@ -266,6 +266,13 @@ def print_lists (run_value):
         print("%f, %f, %f, %f" %(variable_value[i], days_variable[i], tickets_variable[i], scenario_score_variable[i]))
 
 def list_for_pandas (run_value):
+"""This function is money. It runs the monte carlo simulation, creates a list of lists, 
+then it creates and returns a panda dataframe with all of the different simulation values. 
+ToDo:
+    -add column titles
+    -figure out how to sort by simulation
+    -identify the largest of each simulation
+    -return the variable value for our info""" #error because of message above
     variable_value = run_value[0]
     days_variable = run_value[1]
     tickets_variable = run_value[2]
