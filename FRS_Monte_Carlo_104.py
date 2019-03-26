@@ -257,22 +257,7 @@ def run_monte_carlo3():
     return table
 
 
-def print_lists (run_value):
-    variable_value = run_value[0]
-    days_variable = run_value[1]
-    tickets_variable = run_value[2]
-    scenario_score_variable = run_value[3]
-    for i in range(len(variable_value)):
-        print("%f, %f, %f, %f" %(variable_value[i], days_variable[i], tickets_variable[i], scenario_score_variable[i]))
-
 def list_for_pandas (run_value):
-"""This function is money. It runs the monte carlo simulation, creates a list of lists, 
-then it creates and returns a panda dataframe with all of the different simulation values. 
-ToDo:
-    -add column titles
-    -figure out how to sort by simulation
-    -identify the largest of each simulation
-    -return the variable value for our info""" #error because of message above
     variable_value = run_value[0]
     days_variable = run_value[1]
     tickets_variable = run_value[2]
@@ -284,10 +269,37 @@ ToDo:
     table = pd.DataFrame(big_list)
     return table
 
+#below function may not be needed
+def print_lists (run_value):
+    variable_value = run_value[0]
+    days_variable = run_value[1]
+    tickets_variable = run_value[2]
+    scenario_score_variable = run_value[3]
+    for i in range(len(variable_value)):
+        print("%f, %f, %f, %f" %(variable_value[i], days_variable[i], tickets_variable[i], scenario_score_variable[i]))
+        
+#below function may not be needed
 def monte_carlo_df (data_set):
     table = pd.DataFrame(data_set)
     table.transpose()
     return table
+
+def find_max_for_each_simulation (df):
+    df.columns = ['variable','days','tickets','revenue']
+    one_hundred = df[df.days == 100]
+    one_hundred = one_hundred.sort_values(['revenue'])
+    fourteen = df[df.days == 14]
+    fourteen = fourteen.sort_values(['revenue'])
+    two = df[df.days == 2]
+    two = two.sort_values(['revenue'])
+    one = df[df.days == 1]
+    one = one.sort_values(['revenue'])
+    return [one_hundred, fourteen, two, one]
+
+def put_together():
+    table = run_monte_carlo3()
+    seperate_simulation_df = find_max_for_each_simulation(table)
+    return seperate_simulation_df
 
 #z = run_monte_carlo3()
 #monte_carlo_panda_frame = list_for_pandas(z)
