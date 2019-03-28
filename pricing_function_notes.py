@@ -3,12 +3,12 @@ def pricing_function_monte_carlo(days_left, tickets_left, demand_level,tickets_o
     if days_left == 1:
         price = demand_level - tickets_left
     elif days_left == 2:
-        if demand_level > 179: 
+        if demand_level > 178: 
             price = demand_level - tickets_left
         else:
             price = demand_level - tickets_left/2 
     else:
-        if days_left > 12: #check if 12 is the best number
+        if days_left > 12: #when simulation run 13 was best number for 100 day simulation but 23 was best for 14 day simulation?
             if demand_level > 186:
                 price = demand_level - 8
             else:
@@ -24,7 +24,7 @@ def pricing_function_monte_carlo(days_left, tickets_left, demand_level,tickets_o
                     price = demand_level - 20
                 else:
                     price = demand_level + 1
-        #when does this case ever occur?
+        #when does this case ever occur? Days left will never be less than 3 and be in this overarching else statement
         else:
             if demand_level > 169:
                 price = demand_level - 13 #doesn't consider the number of tickets left

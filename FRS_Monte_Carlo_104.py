@@ -240,7 +240,7 @@ def run_monte_carlo3():
     days_variable = []
     tickets_variable = []
     scenario_score_variable =[]
-    for i in range (100,200):
+    for i in range (3,100):
         x = score_me_monte_carlo(pricing_function_monte_carlo,i,sims_per_scenario=200)
         list_days = x[0]
         list_tickets=x[1]
@@ -298,8 +298,13 @@ def find_max_for_each_simulation (df):
 
 def put_together():
     table = run_monte_carlo3()
-    seperate_simulation_df = find_max_for_each_simulation(table)
-    return seperate_simulation_df
+    #choice 1
+    table.columns = ['variable','days','tickets','revenue']
+    new_table = table.sort_values(['days','revenue'])
+    return new_table
+    #choice 2
+    #seperate_simulation_df = find_max_for_each_simulation(table)
+    #return seperate_simulation_df
 
 #z = run_monte_carlo3()
 #monte_carlo_panda_frame = list_for_pandas(z)
