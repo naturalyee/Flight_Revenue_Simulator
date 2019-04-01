@@ -3,7 +3,7 @@ def pricing_function_monte_carlo(days_left, tickets_left, demand_level,tickets_o
     if days_left == 1:
         price = demand_level - tickets_left
     elif days_left == 2:
-        if demand_level > 178: 
+        if demand_level > 179: 
             price = demand_level - tickets_left
         else:
             price = demand_level - tickets_left/2 

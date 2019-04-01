@@ -71,7 +71,7 @@ def pricing_function_monte_carlo(days_left, tickets_left, demand_level,a):
     if days_left == 1:
         price = demand_level - tickets_left
     elif days_left == 2:
-        if demand_level > a: 
+        if demand_level > 179: 
             price = demand_level - tickets_left
         else:
             price = demand_level - tickets_left/2 
@@ -94,7 +94,7 @@ def pricing_function_monte_carlo(days_left, tickets_left, demand_level,a):
                     price = demand_level + 1
         else: 
             if demand_level > 169:
-                price = demand_level - 13 
+                price = demand_level - 20
             else:
                 price = demand_level - 1
     return price
@@ -141,7 +141,8 @@ def run_monte_carlo3():
     days_variable = []
     tickets_variable = []
     scenario_score_variable =[]
-    for i in range (100,200):
+    for i in range (0,40):
+        #i=i*0.5
         x = score_me_monte_carlo(pricing_function_monte_carlo,i,sims_per_scenario=200)
         list_days = x[0]
         list_tickets=x[1]
