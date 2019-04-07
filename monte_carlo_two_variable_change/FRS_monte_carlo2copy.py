@@ -36,7 +36,7 @@ def _save_score(score):
     js = 'parent.postMessage(%s, "*")' % json.dumps(message)
     display(Javascript(js))
 
-def simulate_revenue(days_left, tickets_left, pricing_function,tickets_over_days, rev_to_date=0, demand_level_min=100, demand_level_max=200, verbose=False):
+def simulate_revenue(days_left, tickets_left, pricing_function,a,b, rev_to_date=0, demand_level_min=100, demand_level_max=200, verbose=False):
     if (days_left == 0) or (tickets_left == 0):
         if verbose:
             if (days_left == 0):
@@ -47,7 +47,7 @@ def simulate_revenue(days_left, tickets_left, pricing_function,tickets_over_days
         return rev_to_date
     else:
         demand_level = uniform(demand_level_min, demand_level_max)
-        p = pricing_function(days_left, tickets_left, demand_level,tickets_over_days)
+        p = pricing_function(days_left, tickets_left, demand_level,a,b)
         q = _tickets_sold(demand_level, p, tickets_left)
         if verbose:
             print("{:.0f} days before flight: "
@@ -60,13 +60,14 @@ def simulate_revenue(days_left, tickets_left, pricing_function,tickets_over_days
         return simulate_revenue(days_left = days_left-1,
                               tickets_left = tickets_left-q,
                               pricing_function=pricing_function,
-                              tickets_over_days = tickets_over_days,
+                              a = a,
+                              b = b,
                               rev_to_date=rev_to_date + p * q,
                               demand_level_min=demand_level_min,
                               demand_level_max=demand_level_max,
                               verbose=verbose)
 
-def pricing_function_monte_carlo(days_left, tickets_left, demand_level,a):
+def pricing_function_monte_carlo(days_left, tickets_left, demand_level,a,b):
     """Sample pricing function"""
     if days_left == 1:
         price = demand_level - tickets_left
@@ -76,7 +77,12 @@ def pricing_function_monte_carlo(days_left, tickets_left, demand_level,a):
         else:
             price = demand_level - tickets_left/2 
     else:
-        if days_left > 12: 
+        if days_left > a:
+            if demand_level > b:
+                price = demand_level - 8
+            else: 
+                price = demand_level + 1
+        elif days_left > 12: 
             if demand_level > 186:
                 price = demand_level - 8
             else:
@@ -99,7 +105,7 @@ def pricing_function_monte_carlo(days_left, tickets_left, demand_level,a):
                 price = demand_level - 1
     return price
 
-def score_me_monte_carlo(pricing_function, tickets_over_days, sims_per_scenario=200):
+def score_me_monte_carlo(pricing_function, a, b, sims_per_scenario=200):
     seed(0)
     Scenario = namedtuple('Scenario', 'n_days n_tickets')
     scenarios = [Scenario(n_days=100, n_tickets=100),
@@ -112,7 +118,7 @@ def score_me_monte_carlo(pricing_function, tickets_over_days, sims_per_scenario=
     tickets = []
     scenario_score_list = []
     for s in scenarios:
-        scenario_score = sum(simulate_revenue(s.n_days, s.n_tickets, pricing_function,tickets_over_days)
+        scenario_score = sum(simulate_revenue(s.n_days, s.n_tickets, pricing_function,a,b)
                                      for _ in range(sims_per_scenario)) / sims_per_scenario
         #print("Ran {:.0f} flights starting {:.0f} days before flight with {:.0f} tickets. "
               #"Average revenue: ${:.0f}".format(sims_per_scenario,
@@ -137,37 +143,38 @@ def score_me_monte_carlo(pricing_function, tickets_over_days, sims_per_scenario=
 
 
 def run_monte_carlo3():
-    variable_value =[]
+    variable1_value =[]
+    variable2_value = []
     days_variable = []
     tickets_variable = []
     scenario_score_variable =[]
-    for i in range (0,40):
-        #i=i*0.5
-        x = score_me_monte_carlo(pricing_function_monte_carlo,i,sims_per_scenario=200)
-        list_days = x[0]
-        list_tickets=x[1]
-        scenario_score=x[2]
-        for day in list_days:
-            variable_value.append(i)
-            days_variable.append(day)
-        for tickets in list_tickets:
-            tickets_variable.append(tickets)
-        for score in scenario_score:
-            scenario_score_variable.append(score)
-    mega_list = [variable_value,days_variable,tickets_variable,scenario_score_variable]
+    for a in range (13, 100):
+        for b in range (150,200):
+            x = score_me_monte_carlo(pricing_function_monte_carlo,a,b,sims_per_scenario=200)
+            list_days = x[0]
+            list_tickets=x[1]
+            scenario_score=x[2]
+            for i in range(len(list_days)):
+                variable1_value.append(a)
+                variable2_value.append(b)
+                days_variable.append(list_days[i])
+                tickets_variable.append(list_tickets[i])
+                scenario_score_variable.append(scenario_score[i])
+    mega_list = [variable1_value,variable2_value,days_variable,tickets_variable,scenario_score_variable]
     table = list_for_pandas(mega_list)
     return table
 
 
 def list_for_pandas (run_value):
-    variable_value = run_value[0]
-    days_variable = run_value[1]
-    tickets_variable = run_value[2]
-    scenario_score_variable = run_value[3]
+    variable1_value = run_value[0]
+    variable2_value = run_value[1]
+    days_variable = run_value[2]
+    tickets_variable = run_value[3]
+    scenario_score_variable = run_value[4]
     big_list = []
     #gotta make a bunch of little lists
-    for i in range(len(variable_value)):
-        mini_list = [variable_value[i],days_variable[i], tickets_variable[i], scenario_score_variable[i]]
+    for i in range(len(variable1_value)):
+        mini_list = [variable1_value[i],variable2_value[i],days_variable[i], tickets_variable[i], scenario_score_variable[i]]
         big_list.append(mini_list)
     table = pd.DataFrame(big_list)
     return table
@@ -188,7 +195,7 @@ def find_max_for_each_simulation (df):
 def put_together():
     table = run_monte_carlo3()
     #choice 1
-    table.columns = ['variable','days','tickets','revenue']
+    table.columns = ['variable1','variable2','days','tickets','revenue']
     new_table = table.sort_values(['days','revenue'])
     return new_table
     #choice 2
